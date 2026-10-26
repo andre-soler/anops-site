@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AnOps | Infraestrutura e DevOps</title>
+<meta name="description" content="Deploy automático, servidor seguro e monitoramento para o sistema da sua empresa. Diagnóstico gratuito de 30 minutos.">
+<meta property="og:title" content="AnOps | Infraestrutura e DevOps">
+<meta property="og:description" content="Seu sistema no ar, seguro e monitorado.">
+<meta property="og:url" content="https://anops.com.br/">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://anops.com.br/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232741C9'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='16' fill='white' text-anchor='middle'%3EAn%3C/text%3E%3C/svg%3E">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Schibsted+Grotesk:wght@600;700;800&display=swap">
+<style>
+/* Layout: coluna única alinhada à esquerda (máx. 1080px); hero em duas colunas com o "relatório de diagnóstico" como peça central; seções separadas por espaço, não por cards. */
+:root {
+  --bg: #F2F4F6;
+  --surface: #FFFFFF;
+  --ink: #16202B;
+  --muted: #56626F;
+  --line: #D5DBE1;
+  --accent: #2741C9;
+  --accent-ink: #FFFFFF;
+  --ok: #1F7A4D;
+  --warn: #A86500;
+  --crit: #B4232C;
+  --term-bg: #1A2330;
+  --term-fg: #DCE3EA;
+  --term-dim: #8796A6;
+  --font-display: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10161E; --surface: #18212C; --ink: #E3E8EE; --muted: #9AA7B4; --line: #2A3542;
+    --accent: #8FA2FF; --accent-ink: #0E1530; --ok: #5BC48C; --warn: #E9A93B; --crit: #F07178;
+    --term-bg: #0B1017; --term-fg: #DCE3EA; --term-dim: #7A8999;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10161E; --surface: #18212C; --ink: #E3E8EE; --muted: #9AA7B4; --line: #2A3542;
+  --accent: #8FA2FF; --accent-ink: #0E1530; --ok: #5BC48C; --warn: #E9A93B; --crit: #F07178;
+  --term-bg: #0B1017; --term-fg: #DCE3EA; --term-dim: #7A8999;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.6; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.1; margin: 0; }
+h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; }
+h3 { font-size: 1.25rem; font-weight: 700; }
+p { margin: 0; }
+
+header.top { padding-block: 22px; }
+header.top .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.brand { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; color: var(--ink); text-decoration: none; }
+.brand span { color: var(--muted); font-weight: 600; }
+nav { display: flex; gap: 22px; flex-wrap: wrap; font-size: 0.95rem; }
+nav a { color: var(--muted); text-decoration: none; }
+nav a:hover { color: var(--ink); }
+
+.hero { padding-block: 40px 80px; }
+.hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; }
+.hero h1 { font-size: clamp(2.5rem, 6vw, 4.3rem); font-weight: 800; letter-spacing: -0.035em; }
+.hero .lede { margin-top: 22px; font-size: 1.2rem; color: var(--muted); max-width: 34ch; }
+.ctas { margin-top: 32px; display: flex; gap: 14px; flex-wrap: wrap; }
+.btn { display: inline-block; padding: 14px 22px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 1rem; border: 1.5px solid var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { color: var(--accent); background: transparent; }
+.btn:hover { filter: brightness(1.08); }
+
+.report { background: var(--term-bg); color: var(--term-fg); border-radius: 12px; padding: 22px 22px 18px; font-family: var(--font-mono); font-size: 0.86rem; min-width: 0; }
+.report-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; color: var(--term-dim); padding-bottom: 14px; border-bottom: 1px solid #2E3B4B; }
+.report-head strong { color: var(--term-fg); font-weight: 500; }
+.report ul { list-style: none; margin: 10px 0 0; padding: 0; }
+.report li { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 7px 0; border-bottom: 1px dashed #2A3644; }
+.report li:last-child { border-bottom: 0; }
+.report .k { min-width: 0; }
+.report .k small { display: block; color: var(--term-dim); font-size: 0.78rem; }
+.tag { font-size: 0.74rem; padding: 2px 8px; border-radius: 4px; align-self: start; font-weight: 500; transition: background .35s, color .35s; }
+.tag.ok { background: #1E4A35; color: #8EE3B4; }
+.tag.warn { background: #4A3410; color: #F5C46B; }
+.tag.crit { background: #4D1C22; color: #FF9EA4; }
+.report-foot { margin-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.score { color: var(--term-dim); }
+.score b { color: var(--term-fg); font-weight: 500; }
+.toggle { font-family: var(--font-mono); font-size: 0.82rem; background: transparent; color: var(--term-fg); border: 1px solid #44546A; border-radius: 6px; padding: 7px 12px; cursor: pointer; }
+.toggle:hover { border-color: var(--term-fg); }
+
+section.block { padding-block: 72px; border-top: 1px solid var(--line); }
+.intro { max-width: 60ch; display: grid; gap: 14px; margin-bottom: 40px; }
+.intro p { color: var(--muted); font-size: 1.1rem; }
+
+.pains { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 48px; margin: 0; padding: 0; list-style: none; }
+.pains li { padding: 20px 0; border-bottom: 1px solid var(--line); display: grid; gap: 4px; }
+.pains b { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; }
+.pains span { color: var(--muted); }
+
+.services { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.svc { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 28px; display: grid; gap: 12px; align-content: start; }
+.svc .kind { font-size: 0.85rem; color: var(--muted); }
+.svc ul { margin: 4px 0 0; padding-left: 18px; color: var(--ink); display: grid; gap: 4px; }
+.svc.recurring { border-color: var(--accent); }
+.svc.recurring .kind { color: var(--accent); font-weight: 600; }
+
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; counter-reset: step; list-style: none; margin: 0; padding: 0; }
+.steps li { counter-increment: step; display: grid; gap: 8px; align-content: start; }
+.steps li::before { content: counter(step); font-family: var(--font-display); font-weight: 800; font-size: 2.6rem; line-height: 1; color: var(--accent); }
+.steps p { color: var(--muted); }
+
+.case { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 40px; padding-block: 36px; border-bottom: 1px solid var(--line); }
+.case:last-child { border-bottom: 0; }
+.case-meta { display: grid; gap: 10px; align-content: start; }
+.case-meta .what { color: var(--muted); font-size: 0.95rem; }
+.stack { display: flex; flex-wrap: wrap; gap: 6px; }
+.stack span { font-family: var(--font-mono); font-size: 0.75rem; padding: 3px 8px; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); }
+.case-body { display: grid; gap: 18px; min-width: 0; }
+.case-body dl { margin: 0; display: grid; gap: 14px; }
+.case-body dt { font-weight: 600; }
+.case-body dd { margin: 2px 0 0; color: var(--muted); max-width: 64ch; }
+.lesson { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; font-size: 0.95rem; max-width: 64ch; }
+.lesson b { display: block; margin-bottom: 4px; }
+.case-link { font-weight: 600; text-decoration: none; }
+.case-link:hover { text-decoration: underline; }
+
+.about { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; }
+.about-text { display: grid; gap: 16px; max-width: 60ch; }
+.about-text p { color: var(--muted); }
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.timeline li { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.timeline time { color: var(--muted); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+.timeline span { display: block; color: var(--muted); font-size: 0.92rem; }
+
+.contact { background: var(--ink); color: var(--bg); border-radius: 14px; padding: 48px; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.contact h2 { color: var(--bg); }
+.contact p { opacity: .8; margin-top: 14px; max-width: 46ch; }
+.contact-list { display: grid; gap: 14px; }
+.contact-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 16px; border: 1px solid color-mix(in srgb, var(--bg) 25%, transparent); border-radius: 8px; }
+.contact-row small { display: block; opacity: .7; font-size: 0.8rem; }
+.contact-row .val { font-family: var(--font-mono); font-size: 0.92rem; user-select: all; word-break: break-all; }
+.contact-row a { color: var(--bg); }
+.copy { background: var(--bg); color: var(--ink); border: 0; border-radius: 6px; padding: 8px 12px; font-weight: 600; cursor: pointer; font-family: var(--font-body); }
+
+footer { padding-block: 40px 56px; color: var(--muted); font-size: 0.92rem; }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+@media (max-width: 860px) {
+  .hero .wrap, .about, .contact { grid-template-columns: minmax(0, 1fr); }
+  .hero { padding-block: 24px 56px; }
+  .case { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .steps { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .services { grid-template-columns: minmax(0, 1fr); }
+  .contact { padding: 28px 22px; }
+}
+@media (max-width: 640px) {
+  .pains, .services { grid-template-columns: minmax(0, 1fr); }
+  nav { display: none; }
+  .timeline li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  section.block { padding-block: 56px; }
+}
+@media (prefers-reduced-motion: reduce) { .tag { transition: none; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#inicio">AnOps <span>infraestrutura e DevOps</span></a>
+    <nav aria-label="Seções">
+      <a href="#servicos">Serviços</a>
+      <a href="#cases">Cases</a>
+      <a href="#sobre">Sobre</a>
+      <a href="#contato">Contato</a>
+    </nav>
+  </div>
+</header>
+
+<main id="inicio">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <h1>Seu sistema no ar, seguro e monitorado.</h1>
+        <p class="lede">Cuido da infraestrutura da sua aplicação: deploy automático, servidor protegido, backup testado e alerta antes que o cliente perceba a queda.</p>
+        <div class="ctas">
+          <a class="btn primary" href="#contato">Pedir diagnóstico gratuito</a>
+          <a class="btn ghost" href="#cases">Ver cases</a>
+        </div>
+      </div>
+
+      <div class="report" aria-live="polite">
+        <div class="report-head">
+          <strong>diagnóstico: loja-exemplo.com.br</strong>
+          <span id="r-when">antes</span>
+        </div>
+        <ul id="r-list">
+          <li><div class="k">Deploy<small data-a="manual, via FTP" data-b="automático a cada merge na main">manual, via FTP</small></div><span class="tag warn" data-a="warn" data-b="ok">alerta</span></li>
+          <li><div class="k">Backup do banco<small data-a="existe, nunca foi restaurado" data-b="diário, restauração testada">existe, nunca foi restaurado</small></div><span class="tag crit" data-a="crit" data-b="ok">crítico</span></li>
+          <li><div class="k">Acesso SSH<small data-a="senha, root liberado" data-b="só chave, sem root, Fail2ban">senha, root liberado</small></div><span class="tag crit" data-a="crit" data-b="ok">crítico</span></li>
+          <li><div class="k">Firewall<small data-a="portas do banco expostas" data-b="UFW: só 22, 80 e 443">portas do banco expostas</small></div><span class="tag warn" data-a="warn" data-b="ok">alerta</span></li>
+          <li><div class="k">Monitoramento<small data-a="o cliente avisa quando cai" data-b="métricas, logs e alerta por e-mail">o cliente avisa quando cai</small></div><span class="tag crit" data-a="crit" data-b="ok">crítico</span></li>
+          <li><div class="k">HTTPS<small data-a="certificado válido" data-b="certificado com renovação automática">certificado válido</small></div><span class="tag ok" data-a="ok" data-b="ok">ok</span></li>
+        </ul>
+        <div class="report-foot">
+          <span class="score" id="r-score"><b>1</b> de 6 itens ok</span>
+          <button class="toggle" id="r-toggle" type="button" aria-pressed="false">Ver depois do serviço</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="problemas">
+    <div class="wrap">
+      <div class="intro">
+        <h2>Algum desses soa familiar?</h2>
+        <p>São os problemas que mais encontro em sistemas de pequenas empresas e em projetos entregues por freelancers.</p>
+      </div>
+      <ul class="pains">
+        <li><b>O sistema caiu e você soube pelo cliente</b><span>Sem monitoramento, a queda só aparece quando alguém reclama.</span></li>
+        <li><b>Cada atualização é um risco</b><span>Deploy feito à mão, por FTP ou copiando arquivos, sem volta fácil se der errado.</span></li>
+        <li><b>O backup nunca foi testado</b><span>Ter backup não garante nada. A pergunta é se ele volta quando você precisa.</span></li>
+        <li><b>Só uma pessoa sabe como o servidor funciona</b><span>Nada documentado, nada versionado. Se ela sumir, o conhecimento vai junto.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block" id="servicos">
+    <div class="wrap">
+      <div class="intro">
+        <h2>Serviços</h2>
+        <p>Pacotes com escopo fechado. Tudo fica documentado e versionado no repositório da sua empresa, para você não depender de mim.</p>
+      </div>
+      <div class="services">
+        <article class="svc">
+          <span class="kind">Projeto</span>
+          <h3>Deploy pronto</h3>
+          <p>Sua aplicação em produção do jeito certo.</p>
+          <ul><li>Docker e Docker Compose</li><li>Nginx como proxy reverso com HTTPS</li><li>CI/CD com GitHub Actions</li><li>Segredos fora do código</li></ul>
+        </article>
+        <article class="svc">
+          <span class="kind">Projeto</span>
+          <h3>Servidor seguro</h3>
+          <p>Configuração padronizada e repetível, feita com Ansible.</p>
+          <ul><li>SSH só com chave e sem root</li><li>Firewall UFW e Fail2ban</li><li>Atualizações de segurança automáticas</li><li>Servidor recriável a partir do código</li></ul>
+        </article>
+        <article class="svc recurring">
+          <span class="kind">Plano mensal</span>
+          <h3>Monitoramento e suporte</h3>
+          <p>Alguém de olho no seu sistema todos os meses.</p>
+          <ul><li>Métricas, logs e dashboard</li><li>Alertas de queda, disco e memória</li><li>Relatório mensal de saúde</li><li>Atualizações e correções de infra</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="como-funciona">
+    <div class="wrap">
+      <div class="intro">
+        <h2>Como funciona</h2>
+      </div>
+      <ol class="steps">
+        <li><h3>Diagnóstico gratuito</h3><p>Uma conversa de 30 minutos. Eu olho a sua infraestrutura e aponto os principais riscos.</p></li>
+        <li><h3>Proposta</h3><p>Você recebe o escopo, o prazo e o preço por escrito, sem surpresa depois.</p></li>
+        <li><h3>Implementação</h3><p>Faço o trabalho, documento tudo e deixo o código de infra no repositório da sua empresa.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="block" id="cases">
+    <div class="wrap">
+      <div class="intro">
+        <h2>Cases</h2>
+        <p>Projetos reais, com as decisões técnicas e os problemas que apareceram no caminho.</p>
+      </div>
+
+      <article class="case">
+        <div class="case-meta">
+          <h3>Ansible Server Setup</h3>
+          <p class="what">Uma VM Ubuntu vazia vira um servidor protegido e monitorado com um comando.</p>
+          <div class="stack"><span>Ansible</span><span>Terraform</span><span>Azure</span><span>GitHub Actions</span></div>
+        </div>
+        <div class="case-body">
+          <dl>
+            <div><dt>Problema</dt><dd>Configurar servidor à mão é lento, cada máquina fica diferente da outra e um erro de digitação pode trancar o acesso.</dd></div>
+            <div><dt>Solução</dt><dd>Terraform cria a VM na Azure com acesso SSH liberado só para o IP do administrador. Ansible aplica quatro roles: sistema base, segurança (SSH, UFW, Fail2ban), Docker e a stack de monitoramento. Os mesmos roles rodam num laboratório local e na Azure.</dd></div>
+            <div><dt>Resultado</dt><dd>Execução idempotente (a segunda rodada termina sem mudanças), configuração de SSH e sudo validada antes de aplicar, segredos no Ansible Vault e CI obrigatório na main.</dd></div>
+          </dl>
+          <p class="lesson"><b>Um problema do caminho</b>VMs retomadas da suspensão voltavam com o relógio horas atrasado, e o apt recusava as listas de pacotes. A correção foi forçar a sincronização do relógio antes de qualquer tarefa de pacote.</p>
+          <a class="case-link" href="https://github.com/andre-soler/ansible-server-setup">Ver o código no GitHub</a>
+        </div>
+      </article>
+
+      <article class="case">
+        <div class="case-meta">
+          <h3>Linux Monitoring Stack</h3>
+          <p class="what">Observabilidade completa de um servidor Linux, instalada com um script.</p>
+          <div class="stack"><span>Prometheus</span><span>Grafana</span><span>Loki</span><span>Alloy</span><span>Bash</span></div>
+        </div>
+        <div class="case-body">
+          <dl>
+            <div><dt>Problema</dt><dd>Sem monitoramento, disco cheio, falta de memória e serviço travado só aparecem quando o sistema já caiu.</dd></div>
+            <div><dt>Solução</dt><dd>Métricas com Prometheus, logs do systemd com Alloy e Loki, dashboard único no Grafana e um relatório diário de saúde enviado por e-mail. Dashboards e alertas são provisionados por arquivo, então um Grafana novo sobe idêntico.</dd></div>
+            <div><dt>Resultado</dt><dd>Cinco regras de alerta por e-mail, cada uma testada provocando o problema de propósito, com filtros de ruído para evitar alerta falso.</dd></div>
+          </dl>
+          <p class="lesson"><b>Um problema do caminho</b>A fórmula comum de uso de disco mostrava cerca de 7% enquanto o df mostrava 2%. A diferença eram os 5% de blocos que o ext4 reserva para o root. Dashboard e alerta passaram a usar a mesma conta do df.</p>
+          <a class="case-link" href="https://github.com/andre-soler/linux-monitoring-stack">Ver o código no GitHub</a>
+        </div>
+      </article>
+
+      <article class="case">
+        <div class="case-meta">
+          <h3>Central FastCoffee</h3>
+          <p class="what">Sistema de gestão de uma operação de máquinas de café, com clientes, contratos e cobrança.</p>
+          <div class="stack"><span>Docker</span><span>Nginx</span><span>GitHub Actions</span><span>Linux VPS</span></div>
+        </div>
+        <div class="case-body">
+          <dl>
+            <div><dt>Problema</dt><dd>Um sistema com dados de clientes e integração de pagamento precisava ir para a internet com segurança e atualizações sem risco.</dd></div>
+            <div><dt>Solução</dt><dd>Aplicação em Docker numa VPS Linux, Nginx com HTTPS para os subdomínios do app e da API, SSH protegido, firewall UFW, Fail2ban e usuário do banco com permissões mínimas.</dd></div>
+            <div><dt>Resultado</dt><dd>Deploy automático via GitHub Actions a cada push na main, merge só com pull request e CI verde, monitoramento de disponibilidade e alertas de dependências vulneráveis.</dd></div>
+          </dl>
+          <p class="lesson"><b>Código privado</b>O repositório tem regras de negócio do cliente, por isso o código não é público. A arquitetura e as decisões estão descritas aqui.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="block" id="sobre">
+    <div class="wrap about">
+      <div class="about-text">
+        <h2>Quem cuida da sua infra</h2>
+        <p>Sou André, fundador da AnOps, desenvolvedor full-stack em São Paulo, focado em infraestrutura e DevOps. Comecei escrevendo sistemas e passei a cuidar de onde eles rodam: containers, nuvem, automação e monitoramento.</p>
+        <p>Por ser desenvolvedor, entendo o código que vou colocar no ar e converso a mesma língua de quem o escreveu.</p>
+      </div>
+      <ol class="timeline">
+        <li><time>2024 – 2026</time><div>Analista Júnior, ICL América do Sul<span>Sistemas dockerizados, publicados na Azure com Terraform e monitorados com Grafana.</span></div></li>
+        <li><time>2023 – 2024</time><div>Analista Júnior, FastCoffee<span>Sistema de gestão em produção com CI/CD, Nginx e hardening.</span></div></li>
+        <li><time>2023 – 2026</time><div>Engenharia de Software, FIAP<span>Certificação AZ-900 em andamento.</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="block" id="contato" style="border-top:0">
+    <div class="wrap">
+      <div class="contact">
+        <div>
+          <h2>Vamos olhar a sua infraestrutura?</h2>
+          <p>O diagnóstico é gratuito e leva 30 minutos. Você sai sabendo quais são os riscos, mesmo que não contrate nada.</p>
+        </div>
+        <div class="contact-list">
+          <div class="contact-row">
+            <div><small>E-mail</small><span class="val" id="email">andrec.soleresr@gmail.com</span></div>
+            <button class="copy" id="copy-email" type="button">Copiar</button>
+          </div>
+          <div class="contact-row">
+            <div><small>LinkedIn</small><a class="val" href="https://www.linkedin.com/in/andresolereng">linkedin.com/in/andresolereng</a></div>
+          </div>
+          <div class="contact-row">
+            <div><small>GitHub</small><a class="val" href="https://github.com/andre-soler">github.com/andre-soler</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>AnOps, São Paulo</span>
+    <span>&copy; 2026 AnOps</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var btn = document.getElementById('r-toggle');
+  var after = false;
+  var labels = { ok: 'ok', warn: 'alerta', crit: 'crítico' };
+  btn.addEventListener('click', function () {
+    after = !after;
+    var key = after ? 'b' : 'a';
+    var oks = 0;
+    document.querySelectorAll('#r-list li').forEach(function (li) {
+      var s = li.querySelector('small');
+      var t = li.querySelector('.tag');
+      s.textContent = s.dataset[key];
+      var st = t.dataset[key];
+      t.className = 'tag ' + st;
+      t.textContent = labels[st];
+      if (st === 'ok') oks++;
+    });
+    document.getElementById('r-score').innerHTML = '<b>' + oks + '</b> de 6 itens ok';
+    document.getElementById('r-when').textContent = after ? 'depois' : 'antes';
+    btn.textContent = after ? 'Ver antes do serviço' : 'Ver depois do serviço';
+    btn.setAttribute('aria-pressed', String(after));
+  });
+
+  var copyBtn = document.getElementById('copy-email');
+  copyBtn.addEventListener('click', function () {
+    var text = document.getElementById('email').textContent;
+    var done = function () { copyBtn.textContent = 'Copiado'; setTimeout(function () { copyBtn.textContent = 'Copiar'; }, 1800); };
+    var fallback = function () {
+      var r = document.createRange(); r.selectNodeContents(document.getElementById('email'));
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      copyBtn.textContent = 'Selecionado';
+    };
+    try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+  });
+})();
+</script>
+
+</body>
+</html>
